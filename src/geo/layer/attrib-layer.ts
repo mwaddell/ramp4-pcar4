@@ -149,8 +149,12 @@ export class AttribLayer extends MapLayer {
             // If server does not have a renderer defined, it's not drawing on the map. Can use ! to avoid extra checks, since
             // layer is already roont.
             const esriRenderer =
-                options && options.customRenderer && options.customRenderer.type
+                options?.customRenderer?.type
                     ? options.customRenderer
+                    : Object.prototype.toString.call(options?.customRenderer) === '[object Function]'
+                    ? options.customRenderer(sData.renderer!)
+                    : Object.prototype.toString.call(options?.customRenderer) === '[object AsyncFunction]'
+                    ? await options.customRenderer(sData.renderer!)
                     : sData.renderer!;
 
             this.renderer = this.$iApi.geo.symbology.makeRenderer(esriRenderer, this.fields);
